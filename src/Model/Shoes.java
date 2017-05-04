@@ -2,10 +2,12 @@ package Model;
 
 public class Shoes extends Product {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private int size;
 
 	public Shoes(String name, String color, int price, int size) {
-		this.setProductId(getProductId());
+		this.setProductId(getNextId());
 		this.setName(name);
 		this.setColor(color);
 		this.setPrice(price);

@@ -2,11 +2,13 @@ package Model;
 
 public class Bag extends Product {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private int height;
 	private int width;
 	private int depth;
 	
-	public int[] getArraySize(String size) {
+	public static int[] getArraySize(String size) {
 		int[] arr = new int[3];
 		String[] tokens = size.split("x");
 		arr[0] = Integer.parseInt(tokens[0].trim());
@@ -26,7 +28,7 @@ public class Bag extends Product {
 	}
 	
 	public Bag(String name, String color, int price, int[] size) {
-		this.setProductId(getProductId());
+		this.setProductId(getNextId());
 		this.setName(name);
 		this.setColor(color);
 		this.setPrice(price);

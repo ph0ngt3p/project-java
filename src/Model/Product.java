@@ -1,6 +1,13 @@
 package Model;
 
-public abstract class Product {
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import Controller.ProductBusiness;
+
+public abstract class Product implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private int productId;
 	private String name;
@@ -9,6 +16,12 @@ public abstract class Product {
 	
 	public static int getNextId() {
 		int id = 1;
+		ArrayList<ProductGroup> list = ProductBusiness.list;
+		if (list.size() < 1)
+			id = 1;
+		else {
+			id = list.get(list.size() - 1).getProduct().getProductId() + 1;
+		}
 		return id;
 	}
 

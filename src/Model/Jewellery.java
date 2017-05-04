@@ -2,10 +2,12 @@ package Model;
 
 public class Jewellery extends Product {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private String material;
 
 	public Jewellery (String name, String color, int price, String material) {
-		this.setProductId(getProductId());
+		this.setProductId(getNextId());
 		this.setName(name);
 		this.setColor(color);
 		this.setPrice(price);
