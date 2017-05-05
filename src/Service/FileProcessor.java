@@ -9,7 +9,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import Model.Employee;
+import Model.Expense;
 import Model.ProductGroup;
+import Model.Transaction;
 
 public class FileProcessor {
 	private static final String productFile = "productFile";
@@ -98,6 +100,96 @@ public class FileProcessor {
 			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
 
 			for (ProductGroup e : list) {
+				objectOut.writeObject(e);
+				objectOut.reset();
+			}
+			objectOut.close();
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+	
+	public static ArrayList<Transaction> getTransactionListFromFile() {
+		ArrayList<Transaction> transactionList = new ArrayList<Transaction>();
+		try {
+			FileInputStream fileIn = new FileInputStream(transactionFile);
+			ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+
+			boolean eof = false;
+			Object obj = null;
+			while (!eof) {
+				try {
+					obj = objectIn.readObject();
+					if (obj instanceof Transaction) {
+						Transaction e = (Transaction) obj;
+						transactionList.add(e);
+					}
+				} catch (EOFException e) {
+					eof = true;
+				}
+			}
+			objectIn.close();
+
+		} catch (FileNotFoundException e) {
+			System.err.println("Create new transaction file!");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return transactionList;
+	}
+	
+	public static void writeTransactionListIntoFile(ArrayList<Transaction> list) {
+		try {
+			FileOutputStream fileOut = new FileOutputStream(transactionFile);
+			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+
+			for (Transaction e : list) {
+				objectOut.writeObject(e);
+				objectOut.reset();
+			}
+			objectOut.close();
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+	
+	public static ArrayList<Expense> getExpenseListFromFile() {
+		ArrayList<Expense> expenseList = new ArrayList<Expense>();
+		try {
+			FileInputStream fileIn = new FileInputStream(expenseFile);
+			ObjectInputStream objectIn = new ObjectInputStream(fileIn);
+
+			boolean eof = false;
+			Object obj = null;
+			while (!eof) {
+				try {
+					obj = objectIn.readObject();
+					if (obj instanceof Expense) {
+						Expense e = (Expense) obj;
+						expenseList.add(e);
+					}
+				} catch (EOFException e) {
+					eof = true;
+				}
+			}
+			objectIn.close();
+
+		} catch (FileNotFoundException e) {
+			System.err.println("Create new expense file!");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return expenseList;
+	}
+	
+	public static void writeExpenseListIntoFile(ArrayList<Expense> list) {
+		try {
+			FileOutputStream fileOut = new FileOutputStream(expenseFile);
+			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
+
+			for (Expense e : list) {
 				objectOut.writeObject(e);
 				objectOut.reset();
 			}

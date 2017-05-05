@@ -24,6 +24,16 @@ public abstract class Product implements Serializable {
 		}
 		return id;
 	}
+	
+	public static int getPriceById(int id) {
+		ArrayList<ProductGroup> list = ProductBusiness.list;
+		for (ProductGroup pg: list) {
+			if (pg.getProduct().getProductId() == id) {
+				return pg.getProduct().getPrice();
+			}
+		}
+		return 0;
+	}
 
 	public int getProductId() {
 		return productId;

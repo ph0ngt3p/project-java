@@ -124,7 +124,6 @@ public class FrameLogIn extends JFrame {
 		panel.add(btnLogIn);
 		
 		JButton btnNewAccount = new JButton("New Account");
-
 		btnNewAccount.setBounds(373, 225, 112, 23);
 		panel.add(btnNewAccount);
 		

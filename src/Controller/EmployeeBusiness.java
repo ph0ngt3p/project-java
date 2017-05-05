@@ -28,6 +28,15 @@ public class EmployeeBusiness {
 		return null;
 	}
 	
+	public static String getUsernameById(int id) {
+		for (Employee e: list) {
+			if (e.getEmployeeId() == id) {
+				return e.getUsername();
+			}
+		}
+		return null;
+	}
+	
 	public static boolean addEmployee(String name, LocalDate dob, String phone, String username, char[] password, String type) {
 		if (checkUsername(username)) {
 			Employee e = new Employee(name, dob, phone, username, password, type);

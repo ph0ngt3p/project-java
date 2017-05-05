@@ -32,7 +32,7 @@ public class FrameAddEmployee extends JFrame {
 
 	public FrameAddEmployee(MainFrame mainFrame) {
 		setTitle("Create new account");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 499, 490);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

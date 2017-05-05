@@ -42,7 +42,7 @@ public class FrameAddProduct extends JFrame {
 
 	public FrameAddProduct(MainFrame mainFrame) {
 		setTitle("Add new products");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 451, 475);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -153,7 +153,6 @@ public class FrameAddProduct extends JFrame {
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
-					//int productId = Integer.parseInt(txtProductId.getText());
 					String type = cbbType.getSelectedItem().toString();
 					String name = txtName.getText();
 					String color = txtColor.getText();

@@ -5,12 +5,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -21,20 +25,25 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Controller.EmployeeBusiness;
+import Controller.ExpenseBusiness;
 import Controller.ProductBusiness;
+import Controller.TransactionBusiness;
 import Model.Bag;
 import Model.Clothes;
 import Model.Employee;
+import Model.Expense;
 import Model.Jewellery;
 import Model.ProductGroup;
+import Model.Salary;
 import Model.Shoes;
+import Model.Transaction;
 
 public class MainFrame extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
-	private Employee currentUser;
+	public Employee currentUser;
 	private JLabel txtId;
 	private JLabel txtName;
 	private JLabel txtDob;
@@ -63,6 +72,23 @@ public class MainFrame extends JFrame {
 		tabbedPane.setFont(new Font("Consolas", Font.BOLD, 13));
 		tabbedPane.setBounds(10, 11, 964, 515);
 		contentPane.add(tabbedPane);
+		
+		// menu bar
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu1 = new JMenu("File");
+		setJMenuBar(menuBar);
+		menuBar.add(menu1);
+		JMenuItem logout = new JMenuItem("Log out");
+		logout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				FrameLogIn frame = new FrameLogIn();
+				frame.setVisible(true);
+				getFrame().dispose();
+			}
+		});
+		menu1.add(logout);
+		JMenuItem stats = new JMenuItem("Monthly Statistics");
+		menu1.add(stats);
 		
 		// Information Tab
 		Font normalFont = new Font("Consolas", Font.PLAIN, 12);
@@ -129,7 +155,7 @@ public class MainFrame extends JFrame {
 		
 		txtType = new JLabel("");
 		txtType.setFont(boldFont);
-		txtType.setBounds(190, 275, 100, 20);
+		txtType.setBounds(190, 275, 200, 20);
 		panel.add(txtType);
 		
 		// Product Tab
@@ -256,6 +282,25 @@ public class MainFrame extends JFrame {
 		btnDeleteProduct.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnDeleteProduct.setBounds(760, 435, 80, 30);
 		productPanel.add(btnDeleteProduct);
+		
+		JButton btnAddTrans = new JButton("Add transaction");
+		btnAddTrans.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int[] selectedRows = productTable.getSelectedRows();
+				if (selectedRows.length != 1) {
+					JOptionPane.showMessageDialog(contentPane, "Please select a product to transact!");
+				}
+				else {
+					int id = Integer.parseInt(productTable.getValueAt(selectedRows[0], 1).toString());
+					FrameNewTransaction frame = new FrameNewTransaction(getFrame());
+					frame.txtProductId.setText("" + id);
+					frame.setVisible(true);
+				}
+			}
+		});
+		btnAddTrans.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnAddTrans.setBounds(30, 435, 144, 30);
+		productPanel.add(btnAddTrans);
 		
 		// Employee panel
 		JPanel employeePanel = new JPanel();
@@ -419,16 +464,47 @@ public class MainFrame extends JFrame {
 		
 		JComboBox<String> cbbFilterTransaction = new JComboBox<String>();
 		cbbFilterTransaction.setFont(new Font("Consolas", Font.PLAIN, 12));
-		cbbFilterTransaction.setModel(new DefaultComboBoxModel<String>(new String[] {"Transaction's ID", "Name", "Username", "Account Type"}));
+		cbbFilterTransaction.setModel(new DefaultComboBoxModel<String>(new String[] {"Transaction's ID", "Employee", "Product"}));
 		cbbFilterTransaction.setBounds(467, 24, 113, 30);
 		transactionPanel.add(cbbFilterTransaction);
 		
 		JButton btnSearchTransaction = new JButton("Search");
+		btnSearchTransaction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+					String filter = cbbFilterTransaction.getSelectedItem().toString();
+					String key = txtSearchTransaction.getText();
+					ArrayList<Transaction> list = new ArrayList<Transaction>();
+					for (Transaction e: TransactionBusiness.list) {
+						if (filter.equals("Transaction's ID")) {
+							if (Integer.toString(e.getTransactionId()).indexOf(key.trim().toLowerCase()) != -1) {
+								list.add(e);
+							}
+						} 
+						else if (filter.equals("Employee")) {
+							if (Integer.toString(e.getEmployeeId()).toLowerCase().indexOf(key.trim().toLowerCase()) != -1 || EmployeeBusiness.getUsernameById(e.getEmployeeId()).toLowerCase().indexOf(key.trim().toLowerCase()) != -1) {
+								list.add(e);
+							}
+						}
+						else if (filter.equals("Product")) {
+							if (Integer.toString(e.getProductId()).toLowerCase().indexOf(key.trim().toLowerCase()) != -1 || ProductBusiness.getNameById(e.getProductId()).toLowerCase().indexOf(key.trim().toLowerCase()) != -1) {
+								list.add(e);
+							}
+						}
+					}
+					displayTransactionTable(list);
+				
+			}
+		});
 		btnSearchTransaction.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnSearchTransaction.setBounds(612, 24, 80, 30);
 		transactionPanel.add(btnSearchTransaction);
 		
-		JButton btnRefreshTransactionTable = new JButton("Refresh");
+		JButton btnRefreshTransactionTable = new JButton("Refresh");  
+		btnRefreshTransactionTable.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				displayTransactionTable(TransactionBusiness.list);
+			}
+		});
 		btnRefreshTransactionTable.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnRefreshTransactionTable.setBounds(714, 24, 85, 30);
 		transactionPanel.add(btnRefreshTransactionTable);
@@ -437,24 +513,47 @@ public class MainFrame extends JFrame {
 		transactionScrollPane.setBounds(30, 80, 900, 330);
 		transactionPanel.add(transactionScrollPane);
 		
-		String[] transactionColumnNames = {"transaction's ID", "Full name", "Date of birth", "Phone number", "Username", "Account Type"};
+		String[] transactionColumnNames = {"Transaction's ID", "Date", "Employee's ID", "Employee", "Product's ID", "Product", "Quantity", "Bill"};
 		transactionTableModel = new DefaultTableModel(transactionColumnNames, 0);
 		JTable transactionTable = new JTable(transactionTableModel);
 		transactionTable.setFont(new Font("Consolas", Font.PLAIN, 13));
-		//displaytransactionTable(transactionBusiness.list);
+		displayTransactionTable(TransactionBusiness.list);
 		transactionScrollPane.setViewportView(transactionTable);
 		
 		JButton btnAddTransaction = new JButton("Add");
+		btnAddTransaction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				FrameNewTransaction frame = new FrameNewTransaction(getFrame());
+				frame.setVisible(true);
+			}
+		});
 		btnAddTransaction.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnAddTransaction.setBounds(580, 435, 80, 30);
 		transactionPanel.add(btnAddTransaction);
 		
 		JButton btnUpdateTransaction = new JButton("Update");
+		btnUpdateTransaction.setEnabled(false);
 		btnUpdateTransaction.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnUpdateTransaction.setBounds(670, 435, 80, 30);
 		transactionPanel.add(btnUpdateTransaction);
 		
 		JButton btnDeleteTransaction = new JButton("Delete");
+		btnDeleteTransaction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int[] selectedRows = transactionTable.getSelectedRows();
+				if (selectedRows.length == 0) {
+					JOptionPane.showMessageDialog(contentPane, "Please select rows to delete!");
+				}
+				else {
+					for (int i = 0; i < selectedRows.length; i++) {
+						int id = Integer.parseInt(transactionTable.getValueAt(selectedRows[i], 0).toString());
+						TransactionBusiness.deleteTransaction(id);
+					}
+					displayTransactionTable(TransactionBusiness.list);
+					displayProductTable(ProductBusiness.list);
+				}
+			}
+		});
 		btnDeleteTransaction.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnDeleteTransaction.setBounds(760, 435, 80, 30);
 		transactionPanel.add(btnDeleteTransaction);	
@@ -464,6 +563,107 @@ public class MainFrame extends JFrame {
 		btnCancel3.setBounds(850, 435, 80, 30);
 		btnCancel3.addActionListener(new CancelActionListener());
 		transactionPanel.add(btnCancel3);
+		
+		// expense panel
+		JPanel expensePanel = new JPanel();
+		tabbedPane.addTab("Expense Management", null, expensePanel, null);
+		expensePanel.setLayout(null);
+		
+		JLabel lblSearchExpense = new JLabel("Search:");
+		lblSearchExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		lblSearchExpense.setBounds(30, 24, 60, 30);
+		expensePanel.add(lblSearchExpense);
+		
+		JTextField txtSearchExpense = new JTextField();
+		txtSearchExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		txtSearchExpense.setBounds(100, 25, 250, 30);
+		expensePanel.add(txtSearchExpense);
+		
+		JLabel lblFilterExpense = new JLabel("Filter:");
+		lblFilterExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		lblFilterExpense.setBounds(397, 24, 60, 30);
+		expensePanel.add(lblFilterExpense);
+		
+		JComboBox<String> cbbFilterExpense = new JComboBox<String>();
+		cbbFilterExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		cbbFilterExpense.setModel(new DefaultComboBoxModel<String>(new String[] {"Expense's ID", "Employee", "Product"}));
+		cbbFilterExpense.setBounds(467, 24, 113, 30);
+		expensePanel.add(cbbFilterExpense);
+		
+		JButton btnSearchExpense = new JButton("Search");
+		btnSearchExpense.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+	
+			}
+		});
+		btnSearchExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnSearchExpense.setBounds(612, 24, 80, 30);
+		expensePanel.add(btnSearchExpense);
+		
+		JButton btnRefreshExpenseTable = new JButton("Refresh");  
+		btnRefreshExpenseTable.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				displayTransactionTable(TransactionBusiness.list);
+				txtSearchExpense.setText(null);
+			}
+		});
+		btnRefreshExpenseTable.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnRefreshExpenseTable.setBounds(714, 24, 85, 30);
+		expensePanel.add(btnRefreshExpenseTable);
+		
+		JScrollPane expenseScrollPane = new JScrollPane();
+		expenseScrollPane.setBounds(30, 80, 900, 330);
+		expensePanel.add(expenseScrollPane);
+		
+		String[] expenseColumnNames = {"Expense's ID", "Date", "Employee's ID", "Employee", "Receiver's ID", "Receiver", "Content", "Bill"};
+		expenseTableModel = new DefaultTableModel(expenseColumnNames, 0);
+		JTable expenseTable = new JTable(expenseTableModel);
+		expenseTable.setFont(new Font("Consolas", Font.PLAIN, 13));
+		displayExpenseTable(ExpenseBusiness.list);
+		expenseScrollPane.setViewportView(expenseTable);
+		
+		JButton btnAddExpense = new JButton("Add");
+		btnAddExpense.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				FrameNewExpense frame = new FrameNewExpense(getFrame());
+				frame.setVisible(true);
+			}
+		});
+		btnAddExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnAddExpense.setBounds(580, 435, 80, 30);
+		expensePanel.add(btnAddExpense);
+		
+		JButton btnUpdateExpense = new JButton("Update");
+		btnUpdateExpense.setEnabled(false);
+		btnUpdateExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnUpdateExpense.setBounds(670, 435, 80, 30);
+		expensePanel.add(btnUpdateExpense);
+		
+		JButton btnDeleteExpense = new JButton("Delete");
+		btnDeleteExpense.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int[] selectedRows = expenseTable.getSelectedRows();
+				if (selectedRows.length == 0) {
+					JOptionPane.showMessageDialog(contentPane, "Please select rows to delete!");
+				}
+				else {
+					for (int i = 0; i < selectedRows.length; i++) {
+						int id = Integer.parseInt(expenseTable.getValueAt(selectedRows[i], 0).toString());
+						ExpenseBusiness.deleteExpense(id);
+					}
+					displayExpenseTable(ExpenseBusiness.list);
+				}
+			}
+		});
+		btnDeleteExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnDeleteExpense.setBounds(760, 435, 80, 30);
+		expensePanel.add(btnDeleteExpense);	
+		
+		JButton btnCancel4 = new JButton("Cancel");
+		btnCancel4.setFont(new Font("Consolas", Font.PLAIN, 13));
+		btnCancel4.setBounds(850, 435, 80, 30);
+		btnCancel4.addActionListener(new CancelActionListener());
+		expensePanel.add(btnCancel4);
 	}
 	
 	public MainFrame getFrame() {
@@ -537,6 +737,41 @@ public class MainFrame extends JFrame {
 			String type = e.getAccountType();
 			Object[] obj = {employeeId, name, dob, phone, userName, type};
 			employeeTableModel.addRow(obj);
+		}
+	}
+	
+	public void displayTransactionTable(ArrayList<Transaction> list) {
+		removeAllRows(transactionTableModel);
+		for (Transaction t: list) {
+			int id = t.getTransactionId();
+			Date date = t.getDate();
+			int e = t.getEmployeeId();
+			int p = t.getProductId();
+			int quantity = t.getQuantity();
+			int bill = t.getBill();
+			
+			Object[] obj = {id, date, e, EmployeeBusiness.getUsernameById(e), p, ProductBusiness.getNameById(p), quantity, bill};
+			transactionTableModel.addRow(obj);
+		}
+	}
+	
+	public void displayExpenseTable(ArrayList<Expense> list) {
+		removeAllRows(expenseTableModel);
+		for (Expense e: list) {
+			int id = e.getExpenseId();
+			LocalDate date = e.getDate();
+			Employee em = e.getEmployee();
+			String content = e.getContent();
+			int bill = e.getBill();
+			if (e instanceof Salary) {
+				Employee receiver = ((Salary) e).getReceiver();
+				Object[] obj = {id, date, em.getEmployeeId(), em.getUsername(), receiver.getEmployeeId(), receiver.getUsername(), content, bill};
+				expenseTableModel.addRow(obj);
+			}
+			else {
+				Object[] obj = {id, date, em.getEmployeeId(), em.getUsername(), null, null, content, bill};
+				expenseTableModel.addRow(obj);
+			}
 		}
 	}
 	
