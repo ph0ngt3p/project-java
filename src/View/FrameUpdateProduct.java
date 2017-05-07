@@ -22,10 +22,10 @@ import Controller.ProductBusiness;
 import Model.Bag;
 import Model.Clothes;
 import Model.Jewellery;
-import Model.Product;
+import Model.ProductGroup;
 import Model.Shoes;
 
-public class FrameAddProduct extends JFrame {
+public class FrameUpdateProduct extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -37,11 +37,11 @@ public class FrameAddProduct extends JFrame {
 	private JTextField txtSize;
 	private JTextField txtMaterial;
 	private JComboBox<String> cbbType;
-	private JButton btnAdd;
+	private JButton btnUpdate;
 	private JTextField txtQuantity;
 
-	public FrameAddProduct(MainFrame mainFrame) {
-		setTitle("Add new products");
+	public FrameUpdateProduct(MainFrame mainFrame) {
+		setTitle("Update products");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 451, 475);
 		contentPane = new JPanel();
@@ -58,6 +58,7 @@ public class FrameAddProduct extends JFrame {
 		cbbType.setFont(new Font("Consolas", Font.PLAIN, 13));
 		cbbType.setModel(new DefaultComboBoxModel<String>(new String[] {"Clothes", "Shoes", "Bag", "Jewellery"}));
 		cbbType.addItemListener(new TypeItemListener());
+		cbbType.setEnabled(false);
 		cbbType.setBounds(140, 30, 250, 30);
 		contentPane.add(cbbType);
 		
@@ -69,7 +70,6 @@ public class FrameAddProduct extends JFrame {
 		txtProductId = new JLabel();
 		txtProductId.setFont(new Font("Consolas", Font.BOLD, 13));
 		txtProductId.setBounds(140, 75, 250, 30);
-		txtProductId.setText(Integer.toString(Product.getNextId()));
 		contentPane.add(txtProductId);
 		
 		JLabel lblName = new JLabel("Name:");
@@ -82,7 +82,6 @@ public class FrameAddProduct extends JFrame {
 		txtName.getDocument().addDocumentListener(new InputDocumentListener());
 		txtName.setBounds(140, 120, 250, 30);
 		contentPane.add(txtName);
-		txtName.setColumns(10);
 		
 		JLabel lblColor = new JLabel("Color:");
 		lblColor.setFont(new Font("Consolas", Font.PLAIN, 13));
@@ -93,7 +92,6 @@ public class FrameAddProduct extends JFrame {
 		txtColor.setFont(new Font("Consolas", Font.PLAIN, 13));
 		txtColor.setBounds(140, 165, 250, 30);
 		contentPane.add(txtColor);
-		txtColor.setColumns(10);
 		
 		JLabel lblPrice = new JLabel("Price:");
 		lblPrice.setFont(new Font("Consolas", Font.PLAIN, 13));
@@ -105,7 +103,6 @@ public class FrameAddProduct extends JFrame {
 		txtPrice.getDocument().addDocumentListener(new InputDocumentListener());
 		txtPrice.setBounds(140, 210, 250, 30);
 		contentPane.add(txtPrice);
-		txtPrice.setColumns(10);
 		
 		JLabel lblSize = new JLabel("Size:");
 		lblSize.setFont(new Font("Consolas", Font.PLAIN, 13));
@@ -116,7 +113,6 @@ public class FrameAddProduct extends JFrame {
 		txtSize.setFont(new Font("Consolas", Font.PLAIN, 13));
 		txtSize.setBounds(140, 255, 250, 30);
 		contentPane.add(txtSize);
-		txtSize.setColumns(10);
 		
 		JLabel lblMaterial = new JLabel("Material:");
 		lblMaterial.setFont(new Font("Consolas", Font.PLAIN, 13));
@@ -128,7 +124,6 @@ public class FrameAddProduct extends JFrame {
 		txtMaterial.setEnabled(false);
 		txtMaterial.setBounds(140, 300, 250, 30);
 		contentPane.add(txtMaterial);
-		txtMaterial.setColumns(10);
 		
 		JLabel lblQuantity = new JLabel("Quantity:");
 		lblQuantity.setFont(new Font("Consolas", Font.PLAIN, 13));
@@ -140,7 +135,6 @@ public class FrameAddProduct extends JFrame {
 		txtQuantity.getDocument().addDocumentListener(new InputDocumentListener());
 		txtQuantity.setBounds(140, 345, 250, 30);
 		contentPane.add(txtQuantity);
-		txtQuantity.setColumns(10);
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setFont(new Font("Consolas", Font.PLAIN, 13));
@@ -148,11 +142,12 @@ public class FrameAddProduct extends JFrame {
 		btnCancel.setBounds(308, 395, 82, 30);
 		contentPane.add(btnCancel);
 		
-		btnAdd = new JButton("Add");
-		btnAdd.setFont(new Font("Consolas", Font.PLAIN, 13));
-		btnAdd.addActionListener(new ActionListener() {
+		btnUpdate = new JButton("Update");
+		btnUpdate.setFont(new Font("Consolas", Font.PLAIN, 13));
+		btnUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				try {
+					int id = Integer.parseInt(txtProductId.getText().trim());
 					String type = cbbType.getSelectedItem().toString().trim();
 					String name = txtName.getText().trim();
 					String color = txtColor.getText().trim();
@@ -160,31 +155,7 @@ public class FrameAddProduct extends JFrame {
 					String strSize = txtSize.getText().trim();
 					String material = txtMaterial.getText().trim();
 					int quantity = Integer.parseInt(txtQuantity.getText().trim());
-				
-					if (type.equals("Clothes")) {
-						Clothes c = new Clothes(name, color, price, strSize);
-						ProductBusiness.addProduct(c, quantity);
-					}
-					else if (type.equals("Shoes")) {
-						try {
-							Shoes s = new Shoes(name, color, price, Integer.parseInt(strSize));
-							ProductBusiness.addProduct(s, quantity);
-						} catch (NumberFormatException e) {
-							JOptionPane.showMessageDialog(contentPane, "Shoe size must be a number!");
-						}
-					}
-					else if (type.equals("Bag")) {
-						try {
-							Bag b = new Bag(name, color, price, Bag.getArraySize(strSize));
-							ProductBusiness.addProduct(b, quantity);
-						} catch (NumberFormatException e) {
-							JOptionPane.showMessageDialog(contentPane, "Bag size must be in form of height x width x depth!");
-						}
-					}
-					else if (type.equals("Jewellery")) {
-						Jewellery j = new Jewellery(name, color, price, material);
-						ProductBusiness.addProduct(j, quantity);
-					}
+					ProductBusiness.updateProduct(id, type, name, color, price, strSize, material, quantity);
 					mainFrame.displayProductTable(ProductBusiness.list);
 					getFrame().dispose();
 				} catch (NumberFormatException e) {
@@ -192,12 +163,12 @@ public class FrameAddProduct extends JFrame {
 				}
 			}
 		});
-		btnAdd.setEnabled(false);
-		btnAdd.setBounds(239, 395, 59, 30);
-		contentPane.add(btnAdd);	
+		btnUpdate.setEnabled(false);
+		btnUpdate.setBounds(239, 395, 59, 30);
+		contentPane.add(btnUpdate);	
 	}
 
-	public FrameAddProduct getFrame() {
+	public FrameUpdateProduct getFrame() {
 		return this;
 	}
 	
@@ -227,9 +198,9 @@ public class FrameAddProduct extends JFrame {
 		}
 		public void change() {
 			if (txtName.getText().equals("") || txtPrice.getText().equals("") || txtQuantity.getText().equals(""))
-				btnAdd.setEnabled(false);
+				btnUpdate.setEnabled(false);
 			else 
-				btnAdd.setEnabled(true);
+				btnUpdate.setEnabled(true);
 		}
 	}
 	
@@ -238,6 +209,29 @@ public class FrameAddProduct extends JFrame {
 			if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
 				getFrame().dispose();
 			}
+		}
+	}
+	
+	protected void displayInformation(ProductGroup pg) {
+		String type = pg.getProduct().getClass().getSimpleName();
+		cbbType.setSelectedItem(type);
+		txtProductId.setText("" + pg.getProduct().getProductId());
+		txtName.setText(pg.getProduct().getName());
+		txtColor.setText(pg.getProduct().getColor());
+		txtPrice.setText("" + pg.getProduct().getPrice());
+		txtQuantity.setText("" + pg.getQuantity());
+		if (type.equals("Clothes")) {
+			txtSize.setText(((Clothes) pg.getProduct()).getSize());
+		}
+		else if (type.equals("Shoes")) {
+			txtSize.setText("" + ((Shoes) pg.getProduct()).getSize());
+		}
+		else if (type.equals("Bag")) {
+			Bag b = (Bag) pg.getProduct();
+			txtSize.setText(b.getStringSize(b.getHeight(), b.getWidth(), b.getDepth()));
+		}
+		else if (type.equals("Jewellery")) {
+			txtMaterial.setText(((Jewellery) pg.getProduct()).getMaterial());
 		}
 	}
 }

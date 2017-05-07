@@ -1,6 +1,5 @@
 package View;
 
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,6 +19,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -39,24 +40,10 @@ public class FrameUpdateEmployee extends JFrame {
 	private JPasswordField txtPassword;
 	private JPasswordField txtConfirmPassword;
 	private JComboBox<String> cbbType;
-	
-
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					FrameUpdateEmployee frame = new FrameUpdateEmployee();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
 
 	public FrameUpdateEmployee(MainFrame mainFrame) {
 		setTitle("Update account information");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 499, 490);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -89,7 +76,7 @@ public class FrameUpdateEmployee extends JFrame {
 		
 		txtName = new JLabel();
 		txtName.setFont(boldFont);
-		txtName.setBounds(160, 80, 100, 14);
+		txtName.setBounds(160, 80, 200, 14);
 		panel.add(txtName);
 		
 		JLabel lblDob = new JLabel("Date of birth:");
@@ -155,6 +142,7 @@ public class FrameUpdateEmployee extends JFrame {
 		panel.add(cbbType);
 		
 		JButton btnUpdate = new JButton("Update");
+		getRootPane().setDefaultButton(btnUpdate);
 		btnUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				int id = Integer.parseInt(txtId.getText());
@@ -182,11 +170,34 @@ public class FrameUpdateEmployee extends JFrame {
 		btnCancel.setFont(new Font("Consolas", Font.PLAIN, 13));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				getFrame().dispose();
+				if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
+					getFrame().dispose();
+				}
 			}
 		});
 		btnCancel.setBounds(342, 387, 88, 30);
 		panel.add(btnCancel);
+		
+		DocumentListener documentListener = new DocumentListener() {
+			public void changedUpdate(DocumentEvent event) {
+				change();
+			}
+			
+			public void insertUpdate(DocumentEvent event) {
+				change();
+			}
+			
+			public void removeUpdate(DocumentEvent event) {
+				change();
+			}
+			
+			public void change() {
+				if (!txtName.getText().equals("") && (txtPassword.getPassword().length != 0) && !txtUserName.getText().equals(""))
+					btnUpdate.setEnabled(true);
+				else btnUpdate.setEnabled(false);
+			}
+		};
+		txtPassword.getDocument().addDocumentListener(documentListener);
 	}
 	
 	public FrameUpdateEmployee getFrame() {

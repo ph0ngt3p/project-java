@@ -1,6 +1,7 @@
 package Controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import Model.Transaction;
 import Service.FileProcessor;
@@ -31,5 +32,15 @@ public class TransactionBusiness {
 			}
 		}
 		FileProcessor.writeTransactionListIntoFile(list);
+	}
+	
+	public static int calculateIncome(Date begin, Date finish) {
+		int income = 0;
+		for (Transaction trans: list) {
+			if (trans.getDate().compareTo(begin) >= 0 && trans.getDate().compareTo(finish) <= 0) {
+				income = income + trans.getBill();
+			}
+		}
+		return income;
 	}
 }

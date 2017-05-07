@@ -18,17 +18,19 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.toedter.calendar.JDateChooser;
 
 import Controller.EmployeeBusiness;
+import Model.Employee;
 
 public class FrameAddEmployee extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
-	private JLabel txtId;
 
 	public FrameAddEmployee(MainFrame mainFrame) {
 		setTitle("Create new account");
@@ -50,9 +52,10 @@ public class FrameAddEmployee extends JFrame {
 		lblId.setBounds(23, 35, 100, 14);
 		panel.add(lblId);
 		
-		txtId = new JLabel("");
+		JLabel txtId = new JLabel("");
 		txtId.setFont(new Font("Consolas", Font.BOLD, 12));
 		txtId.setBounds(160, 35, 100, 14);
+		txtId.setText(Integer.toString(Employee.getNextId()));
 		panel.add(txtId);
 		
 		JLabel lblName = new JLabel("Full name:");
@@ -143,7 +146,10 @@ public class FrameAddEmployee extends JFrame {
 					JOptionPane.showMessageDialog(contentPane, "Username is not valid!");
 				}
 				else {
-					if (!Arrays.equals(password, confirmPassword)) {
+					if (password.length <= 5) {
+						JOptionPane.showMessageDialog(contentPane, "Password has to contain at least 6 characters!");
+					}
+					else if (!Arrays.equals(password, confirmPassword)) {
 						JOptionPane.showMessageDialog(contentPane, "Confirm password is wrong!");
 					}
 					else {
@@ -152,7 +158,9 @@ public class FrameAddEmployee extends JFrame {
 						}
 						else {
 							JOptionPane.showMessageDialog(contentPane, "Create successfully!");
-							mainFrame.displayEmployeeTable(EmployeeBusiness.list);
+							if (mainFrame != null) {
+								mainFrame.displayEmployeeTable(EmployeeBusiness.list);
+							}
 							getFrame().dispose();
 						}
 					}
@@ -167,15 +175,35 @@ public class FrameAddEmployee extends JFrame {
 		btnCancel.setFont(new Font("Consolas", Font.PLAIN, 13));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				getFrame().dispose();
+				if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
+					getFrame().dispose();
+				}
 			}
 		});
 		btnCancel.setBounds(342, 387, 88, 30);
 		panel.add(btnCancel);
-	}
-	
-	public void setTxtId(int id) {
-		txtId.setText(Integer.toString(id));
+		DocumentListener documentListener = new DocumentListener() {
+			public void changedUpdate(DocumentEvent event) {
+				change();
+			}
+			
+			public void insertUpdate(DocumentEvent event) {
+				change();
+			}
+			
+			public void removeUpdate(DocumentEvent event) {
+				change();
+			}
+			
+			public void change() {
+				if (!txtName.getText().equals("") && (txtPassword.getPassword().length != 0) && !txtUserName.getText().equals(""))
+					btnCreate.setEnabled(true);
+				else btnCreate.setEnabled(false);
+			}
+		};
+		txtName.getDocument().addDocumentListener(documentListener);
+		txtUserName.getDocument().addDocumentListener(documentListener);
+		txtPassword.getDocument().addDocumentListener(documentListener);
 	}
 
 	public FrameAddEmployee getFrame() {

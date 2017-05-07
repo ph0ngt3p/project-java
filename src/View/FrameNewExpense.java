@@ -3,6 +3,8 @@ package View;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
@@ -30,10 +32,12 @@ public class FrameNewExpense extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
+	private JComboBox<String> cbbType;
+	private JTextField txtReceiver;
 
 	public FrameNewExpense(MainFrame mainFrame) {
 		setTitle("New expense");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 499, 459);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -51,8 +55,9 @@ public class FrameNewExpense extends JFrame {
 		lblType.setBounds(25, 45, 46, 20);
 		panel.add(lblType);
 		
-		JComboBox<String> cbbType = new JComboBox<String>();
+		cbbType = new JComboBox<String>();
 		cbbType.setFont(new Font("Consolas", Font.PLAIN, 13));
+		cbbType.addItemListener(new TypeItemListener());
 		cbbType.setModel(new DefaultComboBoxModel<String>(new String[] {"Salary", "Others"}));
 		cbbType.setBounds(160, 40, 270, 30);
 		panel.add(cbbType);
@@ -94,7 +99,7 @@ public class FrameNewExpense extends JFrame {
 		lblReceiver.setBounds(25, 225, 100, 20);
 		panel.add(lblReceiver);
 		
-		JTextField txtReceiver = new JTextField();
+		txtReceiver = new JTextField();
 		txtReceiver.setBounds(160, 215, 270, 30);
 		panel.add(txtReceiver);
 		
@@ -133,13 +138,25 @@ public class FrameNewExpense extends JFrame {
 						Expense e = new Expense(date, EmployeeBusiness.getEmployeeById(employeeId), content, bill);
 						ExpenseBusiness.addExpense(e);
 						mainFrame.displayExpenseTable(ExpenseBusiness.list);
+						getFrame().dispose();
 					}
 					else {
-						int receiver = Integer.parseInt(txtReceiver.getText());
-						Salary s = new Salary(date, EmployeeBusiness.getEmployeeById(employeeId), EmployeeBusiness.getEmployeeById(receiver), content, bill);
-						ExpenseBusiness.addExpense(s);
-						mainFrame.displayExpenseTable(ExpenseBusiness.list);
+						try {
+							int receiver = Integer.parseInt(txtReceiver.getText());
+							if (EmployeeBusiness.getEmployeeById(receiver) != null) { 
+								Salary s = new Salary(date, EmployeeBusiness.getEmployeeById(employeeId), EmployeeBusiness.getEmployeeById(receiver), content, bill);
+								ExpenseBusiness.addExpense(s);
+								mainFrame.displayExpenseTable(ExpenseBusiness.list);
+								getFrame().dispose();
+							}
+							else {
+								JOptionPane.showMessageDialog(contentPane, "This ID does not exist!");
+							}
+						} catch (NumberFormatException e) {
+							JOptionPane.showMessageDialog(contentPane, "Receiver's ID is invalid!");
+						}
 					}
+					
 				} catch (NumberFormatException e) {
 					JOptionPane.showMessageDialog(contentPane, "Please insert right format!");
 				}
@@ -153,7 +170,9 @@ public class FrameNewExpense extends JFrame {
 		btnCancel.setFont(new Font("Consolas", Font.PLAIN, 13));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				getFrame().dispose();
+				if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
+					getFrame().dispose();
+				}
 			}
 		});
 		btnCancel.setBounds(342, 353, 88, 30);
@@ -162,5 +181,17 @@ public class FrameNewExpense extends JFrame {
 
 	public FrameNewExpense getFrame() {
 		return this;
+	}
+	
+	public class TypeItemListener implements ItemListener {
+		public void itemStateChanged(ItemEvent event) {
+			String selectedType = (String) event.getItem();
+			if (selectedType.equals("Others")) {
+				txtReceiver.setEnabled(false);
+			}
+			else {
+				txtReceiver.setEnabled(true);
+			}
+		}
 	}
 }

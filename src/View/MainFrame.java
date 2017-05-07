@@ -50,6 +50,7 @@ public class MainFrame extends JFrame {
 	private JLabel txtPhone;
 	private JLabel txtUsername;
 	private JLabel txtType;
+	private JButton btnDeleteEmployee;
 	private DefaultTableModel productTableModel;
 	private DefaultTableModel transactionTableModel;
 	private DefaultTableModel employeeTableModel;
@@ -78,6 +79,15 @@ public class MainFrame extends JFrame {
 		JMenu menu1 = new JMenu("File");
 		setJMenuBar(menuBar);
 		menuBar.add(menu1);
+		JMenuItem changePassword = new JMenuItem("Change password");
+		changePassword.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				FrameUpdateEmployee frame = new FrameUpdateEmployee(getFrame());
+				frame.displayAccountInformation(currentUser);
+				frame.setVisible(true);
+			}
+		});
+		menu1.add(changePassword);
 		JMenuItem logout = new JMenuItem("Log out");
 		logout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -87,8 +97,17 @@ public class MainFrame extends JFrame {
 			}
 		});
 		menu1.add(logout);
-		JMenuItem stats = new JMenuItem("Monthly Statistics");
-		menu1.add(stats);
+		JMenuItem exit = new JMenuItem("Exit");
+		exit.addActionListener(new CancelActionListener());
+		menu1.add(exit);
+		JMenuItem extract = new JMenuItem("Report");
+		extract.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				ReportExtract frame = new ReportExtract();
+				frame.setVisible(true);
+			}
+		});
+		menu1.add(extract);
 		
 		// Information Tab
 		Font normalFont = new Font("Consolas", Font.PLAIN, 12);
@@ -259,6 +278,20 @@ public class MainFrame extends JFrame {
 		productPanel.add(btnAddProduct);
 		
 		JButton btnUpdateProduct = new JButton("Update");
+		btnUpdateProduct.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int[] selectedRows = productTable.getSelectedRows();
+				if (selectedRows.length != 1) {
+					JOptionPane.showMessageDialog(contentPane, "Please select exactly one row to update!");
+				}
+				else {
+						int id = Integer.parseInt(productTable.getValueAt(selectedRows[0], 1).toString());
+						FrameUpdateProduct frame = new FrameUpdateProduct(getFrame());
+						frame.displayInformation(ProductBusiness.getGroupById(id));
+						frame.setVisible(true);
+				}
+			}
+		});
 		btnUpdateProduct.setFont(new Font("Consolas", Font.PLAIN, 12));
 		btnUpdateProduct.setBounds(670, 435, 80, 30);
 		productPanel.add(btnUpdateProduct);
@@ -385,7 +418,7 @@ public class MainFrame extends JFrame {
 		displayEmployeeTable(EmployeeBusiness.list);
 		employeeScrollPane.setViewportView(employeeTable);
 		
-		JButton btnDeleteEmployee = new JButton("Delete");
+		btnDeleteEmployee = new JButton("Delete");
 		btnDeleteEmployee.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				int[] selectedRows = employeeTable.getSelectedRows();
@@ -395,7 +428,15 @@ public class MainFrame extends JFrame {
 				else {
 					for (int i = 0; i < selectedRows.length; i++) {
 						int id = Integer.parseInt(employeeTable.getValueAt(selectedRows[i], 0).toString());
-						EmployeeBusiness.deleteEmployee(id);
+						if (id == currentUser.getEmployeeId()) {
+							if (JOptionPane.showConfirmDialog(contentPane, "Are you sure to delete your own account?") == 0) {
+								EmployeeBusiness.deleteEmployee(id);
+								FrameLogIn frame = new FrameLogIn();
+								frame.setVisible(true);
+								getFrame().dispose();
+							}
+						}
+						else EmployeeBusiness.deleteEmployee(id);
 					}
 					displayEmployeeTable(EmployeeBusiness.list);
 				}
@@ -428,7 +469,6 @@ public class MainFrame extends JFrame {
 		btnAddEmployee.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				FrameAddEmployee frame = new FrameAddEmployee(getFrame());
-				frame.setTxtId(Employee.getNextId());
 				frame.setVisible(true);
 			}
 		});
@@ -777,7 +817,18 @@ public class MainFrame extends JFrame {
 	
 	public class CancelActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
-			getFrame().dispose();
+			if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
+				getFrame().dispose();
+			}
+		}
+	}
+	
+	protected void validateButtons() {
+		if (currentUser.getAccountType().equals("Administrator")) {
+			btnDeleteEmployee.setEnabled(true);
+		}
+		else {
+			btnDeleteEmployee.setEnabled(false);
 		}
 	}
 }

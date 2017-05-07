@@ -20,6 +20,8 @@ import javax.swing.event.DocumentListener;
 
 import Controller.EmployeeBusiness;
 import Model.Employee;
+import java.awt.Color;
+import java.awt.SystemColor;
 
 public class FrameLogIn extends JFrame {
 	
@@ -49,41 +51,47 @@ public class FrameLogIn extends JFrame {
 		contentPane.setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.setBackground(Color.WHITE);
 		panel.setBounds(0, 0, 727, 262);
 		contentPane.add(panel);
 		panel.setLayout(null);
 		
 		JLabel lblWelcome = new JLabel("Welcome to Fashion Shop Management System!");
-		lblWelcome.setFont(new Font("Tahoma", Font.BOLD, 27));
+		lblWelcome.setFont(new Font("Bookman Old Style", Font.BOLD, 27));
 		lblWelcome.setHorizontalAlignment(SwingConstants.CENTER);
 		lblWelcome.setBounds(0, 5, 733, 54);
 		panel.add(lblWelcome);
 		
 		JLabel lblLogIn = new JLabel("Log in");
 		lblLogIn.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLogIn.setFont(new Font("Tahoma", Font.BOLD, 22));
+		lblLogIn.setFont(new Font("Consolas", Font.BOLD, 25));
 		lblLogIn.setBounds(0, 90, 733, 44);
 		panel.add(lblLogIn);
 		
 		JLabel lblUsername = new JLabel("Username:");
-		lblUsername.setFont(new Font("Century", Font.PLAIN, 15));
-		lblUsername.setBounds(183, 146, 80, 14);
+		lblUsername.setFont(new Font("Consolas", Font.PLAIN, 15));
+		lblUsername.setBounds(183, 146, 80, 20);
 		panel.add(lblUsername);
 		
 		JLabel lblPassword = new JLabel("Password:");
-		lblPassword.setFont(new Font("Century", Font.PLAIN, 15));
-		lblPassword.setBounds(183, 185, 80, 14);
+		lblPassword.setFont(new Font("Consolas", Font.PLAIN, 15));
+		lblPassword.setBounds(183, 185, 80, 20);
 		panel.add(lblPassword);
 
 		JTextField txtUsername = new JTextField();
-		txtUsername.setBounds(285, 143, 200, 25);
+		txtUsername.setBackground(SystemColor.menu);
+		txtUsername.setFont(new Font("Consolas", Font.PLAIN, 15));
+		txtUsername.setBounds(285, 140, 280, 30);
 		panel.add(txtUsername);
 		
 		JPasswordField txtPassword = new JPasswordField();
-		txtPassword.setBounds(285, 182, 200, 25);
+		txtPassword.setBackground(SystemColor.menu);
+		txtPassword.setFont(new Font("Consolas", Font.PLAIN, 15));
+		txtPassword.setBounds(285, 180, 280, 30);
 		panel.add(txtPassword);
 		
 		JButton btnLogIn = new JButton("Log in");
+		btnLogIn.setFont(new Font("Consolas", Font.PLAIN, 12));
 		getRootPane().setDefaultButton(btnLogIn);
 		btnLogIn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -101,6 +109,7 @@ public class FrameLogIn extends JFrame {
 							frame.setCurrentUser(e);
 							frame.displayInformation();
 							frame.setVisible(true);
+							frame.validateButtons();
 							getFrame().dispose();
 							break;
 						}
@@ -116,15 +125,21 @@ public class FrameLogIn extends JFrame {
 					txtUsername.setText(null);
 					txtPassword.setText(null);
 				}
-				
 			}
 		});
-		btnLogIn.setBounds(295, 225, 70, 23);
+		btnLogIn.setBounds(363, 221, 80, 25);
 		btnLogIn.setEnabled(false);
 		panel.add(btnLogIn);
 		
 		JButton btnNewAccount = new JButton("New Account");
-		btnNewAccount.setBounds(373, 225, 112, 23);
+		btnNewAccount.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnNewAccount.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				FrameAddEmployee frame = new FrameAddEmployee(null);
+				frame.setVisible(true);	
+			}
+		});
+		btnNewAccount.setBounds(453, 221, 112, 25);
 		panel.add(btnNewAccount);
 		
 		DocumentListener documentListener = new DocumentListener() {

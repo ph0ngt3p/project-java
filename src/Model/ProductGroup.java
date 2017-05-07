@@ -14,6 +14,8 @@ public class ProductGroup implements Serializable {
 		this.quantity = quantity;
 	}
 	
+	
+	
 	public Product getProduct() {
 		return product;
 	}

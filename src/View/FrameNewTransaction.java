@@ -108,7 +108,7 @@ public class FrameNewTransaction extends JFrame {
 		lblBill.setBounds(23, 260, 119, 30);
 		panel.add(lblBill);
 		
-		JLabel txtBill = new JLabel();
+		JLabel txtBill = new JLabel("0");
 		txtBill.setFont(boldFont);
 		txtBill.setBounds(160, 260, 270, 30);
 		panel.add(txtBill);
@@ -171,7 +171,9 @@ public class FrameNewTransaction extends JFrame {
 		btnCancel.setFont(new Font("Consolas", Font.PLAIN, 13));
 		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				getFrame().dispose();
+				if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
+					getFrame().dispose();
+				}
 			}
 		});
 		btnCancel.setBounds(342, 305, 88, 30);
