@@ -131,6 +131,7 @@ public class FrameAddEmployee extends JFrame {
 		panel.add(cbbType);
 		
 		JButton btnCreate = new JButton("Create");
+		getRootPane().setDefaultButton(btnCreate);
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				
@@ -153,15 +154,20 @@ public class FrameAddEmployee extends JFrame {
 						JOptionPane.showMessageDialog(contentPane, "Confirm password is wrong!");
 					}
 					else {
-						if (!EmployeeBusiness.addEmployee(name, dob, phone, username, password, type)) {
-							JOptionPane.showMessageDialog(contentPane, "This username has already existed!");
+						if (!isNumeric(phone)) {
+							JOptionPane.showMessageDialog(contentPane, "Phone number is invalid!");
 						}
 						else {
-							JOptionPane.showMessageDialog(contentPane, "Create successfully!");
-							if (mainFrame != null) {
-								mainFrame.displayEmployeeTable(EmployeeBusiness.list);
+							if (!EmployeeBusiness.addEmployee(name, dob, phone, username, password, type)) {
+								JOptionPane.showMessageDialog(contentPane, "This username has already existed!");
 							}
-							getFrame().dispose();
+							else {
+								JOptionPane.showMessageDialog(contentPane, "Create successfully!");
+								if (mainFrame != null) {
+									mainFrame.displayEmployeeTable(EmployeeBusiness.list);
+								}
+								getFrame().dispose();
+							}
 						}
 					}
 				}
@@ -208,5 +214,16 @@ public class FrameAddEmployee extends JFrame {
 
 	public FrameAddEmployee getFrame() {
 		return this;
+	}
+	
+	private boolean isNumeric(String string) {
+		boolean valid = true;
+		for (int i = 0; i < string.length(); i++) {
+			if (((string.charAt(i) < 48) || (string.charAt(i) > 57)) && (string.charAt(i) != 32)) {
+				System.out.println("false");
+				return false;
+			}
+		}
+		return valid;
 	}
 }

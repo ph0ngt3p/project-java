@@ -51,6 +51,8 @@ public class MainFrame extends JFrame {
 	private JLabel txtUsername;
 	private JLabel txtType;
 	private JButton btnDeleteEmployee;
+	private JButton btnAddEmployee;
+	private JButton btnUpdateEmployee;
 	private DefaultTableModel productTableModel;
 	private DefaultTableModel transactionTableModel;
 	private DefaultTableModel employeeTableModel;
@@ -76,7 +78,7 @@ public class MainFrame extends JFrame {
 		
 		// menu bar
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu1 = new JMenu("File");
+		JMenu menu1 = new JMenu("Account");
 		setJMenuBar(menuBar);
 		menuBar.add(menu1);
 		JMenuItem changePassword = new JMenuItem("Change password");
@@ -100,6 +102,7 @@ public class MainFrame extends JFrame {
 		JMenuItem exit = new JMenuItem("Exit");
 		exit.addActionListener(new CancelActionListener());
 		menu1.add(exit);
+		JMenu menu2 = new JMenu("Extract");
 		JMenuItem extract = new JMenuItem("Report");
 		extract.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -107,7 +110,8 @@ public class MainFrame extends JFrame {
 				frame.setVisible(true);
 			}
 		});
-		menu1.add(extract);
+		menu2.add(extract);
+		menuBar.add(menu2);
 		
 		// Information Tab
 		Font normalFont = new Font("Consolas", Font.PLAIN, 12);
@@ -446,7 +450,7 @@ public class MainFrame extends JFrame {
 		btnDeleteEmployee.setBounds(760, 435, 80, 30);
 		employeePanel.add(btnDeleteEmployee);
 		
-		JButton btnUpdateEmployee = new JButton("Update");
+		btnUpdateEmployee = new JButton("Update");
 		btnUpdateEmployee.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				int[] selectedRows = employeeTable.getSelectedRows();
@@ -465,7 +469,7 @@ public class MainFrame extends JFrame {
 		btnUpdateEmployee.setBounds(670, 435, 80, 30);
 		employeePanel.add(btnUpdateEmployee);
 		
-		JButton btnAddEmployee = new JButton("Add");
+		btnAddEmployee = new JButton("Add");
 		btnAddEmployee.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				FrameAddEmployee frame = new FrameAddEmployee(getFrame());
@@ -543,6 +547,7 @@ public class MainFrame extends JFrame {
 		btnRefreshTransactionTable.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				displayTransactionTable(TransactionBusiness.list);
+				txtSearchTransaction.setText(null);
 			}
 		});
 		btnRefreshTransactionTable.setFont(new Font("Consolas", Font.PLAIN, 12));
@@ -626,14 +631,34 @@ public class MainFrame extends JFrame {
 		
 		JComboBox<String> cbbFilterExpense = new JComboBox<String>();
 		cbbFilterExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
-		cbbFilterExpense.setModel(new DefaultComboBoxModel<String>(new String[] {"Expense's ID", "Employee", "Product"}));
+		cbbFilterExpense.setModel(new DefaultComboBoxModel<String>(new String[] {"Expense's ID", "Employee", "Content"}));
 		cbbFilterExpense.setBounds(467, 24, 113, 30);
 		expensePanel.add(cbbFilterExpense);
 		
 		JButton btnSearchExpense = new JButton("Search");
 		btnSearchExpense.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-	
+				String filter = cbbFilterExpense.getSelectedItem().toString();
+				String key = txtSearchExpense.getText();
+				ArrayList<Expense> list = new ArrayList<Expense>();
+				for (Expense e: ExpenseBusiness.list) {
+					if (filter.equals("Expense's ID")) {
+						if (Integer.toString(e.getExpenseId()).indexOf(key.trim().toLowerCase()) != -1) {
+							list.add(e);
+						}
+					} 
+					else if (filter.equals("Employee")) {
+						if (Integer.toString(e.getEmployee().getEmployeeId()).toLowerCase().indexOf(key.trim().toLowerCase()) != -1 || e.getEmployee().getUsername().toLowerCase().indexOf(key.trim().toLowerCase()) != -1) {
+							list.add(e);
+						}
+					}
+					else if (filter.equals("Content")) {
+						if (e.getContent().toLowerCase().indexOf(key.trim().toLowerCase()) != -1) {
+							list.add(e);
+						}
+					}
+				}
+				displayExpenseTable(list);
 			}
 		});
 		btnSearchExpense.setFont(new Font("Consolas", Font.PLAIN, 12));
@@ -643,7 +668,7 @@ public class MainFrame extends JFrame {
 		JButton btnRefreshExpenseTable = new JButton("Refresh");  
 		btnRefreshExpenseTable.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				displayTransactionTable(TransactionBusiness.list);
+				displayExpenseTable(ExpenseBusiness.list);
 				txtSearchExpense.setText(null);
 			}
 		});
@@ -816,6 +841,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	public class CancelActionListener implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
 				getFrame().dispose();
@@ -826,9 +852,13 @@ public class MainFrame extends JFrame {
 	protected void validateButtons() {
 		if (currentUser.getAccountType().equals("Administrator")) {
 			btnDeleteEmployee.setEnabled(true);
+			btnAddEmployee.setEnabled(true);
+			btnUpdateEmployee.setEnabled(true);
 		}
 		else {
 			btnDeleteEmployee.setEnabled(false);
+			btnAddEmployee.setEnabled(false);
+			btnUpdateEmployee.setEnabled(false);
 		}
 	}
 }

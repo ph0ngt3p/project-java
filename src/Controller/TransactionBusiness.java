@@ -27,8 +27,9 @@ public class TransactionBusiness {
 	public static void deleteTransaction(int id) {
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i).getTransactionId() == id) {
-				list.remove(i);
+				
 				ProductBusiness.updateQuantity(list.get(i).getProductId(), list.get(i).getQuantity() * (-1));
+				list.remove(i);
 			}
 		}
 		FileProcessor.writeTransactionListIntoFile(list);

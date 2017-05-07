@@ -127,20 +127,21 @@ public class FrameLogIn extends JFrame {
 				}
 			}
 		});
-		btnLogIn.setBounds(363, 221, 80, 25);
+		btnLogIn.setBounds(395, 221, 80, 25);
 		btnLogIn.setEnabled(false);
 		panel.add(btnLogIn);
 		
-		JButton btnNewAccount = new JButton("New Account");
-		btnNewAccount.setFont(new Font("Consolas", Font.PLAIN, 12));
-		btnNewAccount.addActionListener(new ActionListener() {
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				FrameAddEmployee frame = new FrameAddEmployee(null);
-				frame.setVisible(true);	
+				if (JOptionPane.showConfirmDialog(contentPane, "Are you sure you want to exit") == 0) {
+					getFrame().dispose();
+				}
 			}
 		});
-		btnNewAccount.setBounds(453, 221, 112, 25);
-		panel.add(btnNewAccount);
+		btnCancel.setFont(new Font("Consolas", Font.PLAIN, 12));
+		btnCancel.setBounds(485, 221, 80, 25);
+		panel.add(btnCancel);
 		
 		DocumentListener documentListener = new DocumentListener() {
 			public void changedUpdate(DocumentEvent event) {
